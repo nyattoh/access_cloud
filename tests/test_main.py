@@ -39,3 +39,25 @@ def test_update_and_delete_record():
     delete_resp = client.delete(f"/records/{record_id}")
     assert delete_resp.status_code == 200
     assert delete_resp.json()["ok"] is True
+
+def test_read_single_record():
+    resp = client.post("/records/", json={"name": "Single"})
+    record_id = resp.json()["id"]
+    get_resp = client.get(f"/records/{record_id}")
+    assert get_resp.status_code == 200
+    assert get_resp.json()["name"] == "Single"
+
+
+def test_read_record_not_found():
+    resp = client.get("/records/9999")
+    assert resp.status_code == 404
+
+
+def test_search_records():
+    client.post("/records/", json={"name": "Alpha"})
+    client.post("/records/", json={"name": "Beta"})
+    resp = client.get("/records/search", params={"name": "Al"})
+    assert resp.status_code == 200
+    data = resp.json()
+    assert any(r["name"] == "Alpha" for r in data)
+

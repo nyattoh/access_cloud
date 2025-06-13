@@ -24,6 +24,13 @@ def read_records():
     with Session(engine) as session:
         return session.exec(select(Record)).all()
 
+@app.get("/records/search", response_model=list[Record])
+def search_records(name: str):
+    with Session(engine) as session:
+        stmt = select(Record).where(Record.name.contains(name))
+        return session.exec(stmt).all()
+
+
 
 @app.get("/records/{record_id}", response_model=Record)
 def read_record(record_id: int):
